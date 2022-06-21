@@ -13,7 +13,7 @@ The main idea behind this project is for it to run as a cronjob on a Raspberry P
 # Setup and Instructions
 1) Download the correct ChromeDriver for your version of Chromium (if no version exists on your device already[^1]). It can be downloaded [here](https://chromedriver.chromium.org/).
 2) The script **does not** require your login information. Open Chromium, log into your Youtube account, and ensure your login details are saved. Close the browser, reopen it, and go to Youtube to ensure you are still logged in.
-3) Create a new playlist in your Youtube account. You can use an existing one, but it is recommeneded to keep your automation playlist separate (**OPTIONAL**) 
+3) Create a new playlist in your Youtube account. You can use an existing one, but it is recommeneded to keep your automation playlist separate. 
 4) Install [Selenium](https://selenium-python.readthedocs.io/) if you do not have it already ```pip install selenium```.
 5) Open upnext.py in your IDE of choice and navigate to the "# user settings" section:
 
@@ -24,7 +24,7 @@ The main idea behind this project is for it to run as a cronjob on a Raspberry P
 
 6) Before running the script, ensure Chromium is closed.
 
-In order to set up cronjobs and having it run automatically at specified times, I recommened checking out the plethora of cronjob resources out there (just to keep this README at a reasonable amount of text).
+In the interest of keeping this README within the scope of the project, I recommened checking out the plethora of [cron resources](https://www.google.com/search?q=python+script+cronjob) out there to learn how to set a cronjob for this script so it will run automatically.
 
 # Planned Updates
 - Additional browser support
@@ -37,4 +37,4 @@ In order to set up cronjobs and having it run automatically at specified times, 
 - Youtube code changes. If/when Youtube changes something, it may cause this script to fail. This isn't a huge concern from a development standpoint because I can always modify the script to adjust. If I fail to catch a change before you do, please report
 
 [^1]: In some cases, you may find that ChromeDriver is already in your system files by default. If it is already on your system by default, it may be located at ```/usr/lib/chromium-browser/chromedriver```
-[^2]: It may work for these platforms with or without minimal modification, I just have not tested this yet
+[^2]: The script may work for these platforms with or without minimal modification, I just have not tested this yet
