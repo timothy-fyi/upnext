@@ -12,6 +12,7 @@ from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.action_chains import ActionChains
 import time
+import json
 
 # user settings
 gc_driver = 'CHROME_DRIVER_LOCATION'
@@ -76,10 +77,10 @@ for element in video_elements:
                         playlist.click()
                     except (ElementClickInterceptedException, ElementNotInteractableException) as error:
                         pass
-                time.sleep(1)
+                time.sleep(4)
                 # close out of menu options
                 WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'yt-icon.ytd-add-to-playlist-renderer'))).click()
-                time.sleep(1)
+                time.sleep(4)
 
 time.sleep(3)
 browser.quit()
