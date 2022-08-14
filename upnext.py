@@ -12,7 +12,6 @@ from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.action_chains import ActionChains
 import time
-import json
 
 # user settings
 gc_driver = 'CHROME_DRIVER_LOCATION'
