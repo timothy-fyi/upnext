@@ -32,6 +32,7 @@ In the interest of keeping this README within the scope of the project, I recomm
 - Command line interface so editing the code is not required
 
 # Possible Issues
+- There *may* be a crash that occurs as Upnext tries to access Youtube. This isn't caused by the script, but an issue with Chromium (read more about it [here](https://forums.raspberrypi.com/viewtopic.php?t=323640)). A "quick fix" is to edit your cookie settings in Settings -> Privacy -> Cookies -> Always clear cookies when windows are closed -> Add Youtube to list in this format: ```[*.]youtube.com``` and be sure to click the option that removes 3rd party cookies as well
 - Having an instance of Chromium open while the script runs will cause it to fail. Either use a different browser, or run the script when you won't be using your browser
 - There isn't much error handling at the moment. If a weird issue arises you will see the Python error associated with why the script failed. Feel free to report any you run into. It will help immensly with trying to catch any and all possible errors that have not yet appeared in my testing
 - Youtube code changes. If/when Youtube changes something, it may cause this script to fail. This isn't a huge concern from a development standpoint because I can always modify the script to adjust. If I fail to catch a change before you do, please report
