@@ -17,6 +17,7 @@ import time
 gc_driver = 'CHROME_DRIVER_LOCATION'
 gc_profile = 'CHROMIUM_PROFILE_LOCATION'
 playlist_link = 'PLAYLIST_LINK'
+playlist_name = 'EXACT PLAYLIST NAME HERE'
 subs_to_keep = ['CHANNEL', 'NAMES', 'AS', 'LIST']
 
 # browser settings
@@ -30,7 +31,8 @@ browser = webdriver.Chrome(service=ser, options=options)
 
 browser.get(playlist_link)
 time.sleep(7)
-playlist_name = browser.find_element(By.XPATH, '//*[@id="text-displayed"]').text
+# have to fix below line, supposed to automitcally return playlist name without user input from 'user settings'
+# playlist_name = browser.find_element(By.XPATH, '//*[@id="text-displayed"]').text
 
 videos_to_remove = browser.find_elements(By.XPATH, '//*[@id="video-title"]')
 for videos in videos_to_remove:
