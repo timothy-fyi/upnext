@@ -20,6 +20,7 @@ The main idea behind this project is for it to run as a cronjob on a Raspberry P
    * **gc_driver** - The full location where you have your ChromeDriver saved. For example, ```/usr/lib/chromium-browser/chromedriver```
    * **gc_profile** - This is the location of your Chromium user profile. It may be located at ```/home/your_name/.config/chromium/```
    *  **playlist_link** - The direct link to your playlist on Youtube. It should look something like this: ```https://www.youtube.com/playlist?list=somerandomstringoflettersandnumbers```
+   *  **playlist_name** - Added as a temporary fix for the issue where playlist names weren't automatically being captured in the code. Enter the exact playlist name here, including capitalization. For example: ```My Playlist Name```
    *  **subs_to_keep** - The list of channels you would like the script to add to your playlist. **Not** case sensitive. Ensure that the channels are separated by single quotes and a comma within the list bracket. For example: ```subs_to_keep = ['channel 1', 'channel 2', 'channel 3']```
 
 **Before running the script, ensure Chromium is not open. Having the browser open when the script runs will cause the script to fail. You can have a different browser open, just not Chromium.**
