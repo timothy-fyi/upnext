@@ -31,7 +31,7 @@ browser = webdriver.Chrome(service=ser, options=options)
 
 browser.get(playlist_link)
 time.sleep(7)
-# have to fix below line, supposed to automitcally return playlist name without user input from 'user settings'
+# have to fix below line, supposed to automitcally return playlist name without user input from 'user settings', broke after a recent Youtube update
 # playlist_name = browser.find_element(By.XPATH, '//*[@id="text-displayed"]').text
 
 videos_to_remove = browser.find_elements(By.XPATH, '//*[@id="video-title"]')
