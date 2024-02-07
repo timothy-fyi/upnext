@@ -17,7 +17,7 @@ import time
 gc_driver = 'CHROME_DRIVER_LOCATION'
 gc_profile = 'CHROMIUM_PROFILE_LOCATION'
 playlist_link = 'PLAYLIST_LINK'
-playlist_name = 'EXACT PLAYLSIT NAME HERE'
+playlist_name = 'EXACT PLAYLIST NAME HERE'
 subs_to_keep = ['CHANNEL', 'NAMES', 'AS', 'LIST']
 
 # browser settings
@@ -32,7 +32,7 @@ browser.get(playlist_link)
 
 time.sleep(7)
 # get playlist name for later reference when adding videos
-# have to fix below lines, supposed to automitcally return playlist name without user input
+# have to fix below lines, supposed to automatically return playlist name without user input
 # playlist_name_element = browser.find_element(By.XPATH, '//*[@id="text"]')
 
 videos_to_remove = browser.find_elements(By.XPATH, '//*[@id="video-title"]')
@@ -51,7 +51,7 @@ for videos in videos_to_remove:
 time.sleep(3)
 browser.get('https://www.youtube.com/feed/subscriptions')
 
-# identifys video elements
+# identify video elements
 time.sleep(3)
 video_elements = browser.find_elements(By.CLASS_NAME, 'style-scope ytd-rich-grid-media')
 
