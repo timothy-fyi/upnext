@@ -38,5 +38,8 @@ In the interest of keeping this README within the scope of the project, I recomm
 - There isn't much error handling at the moment. If a weird issue arises you will see the Python error associated with why the script failed. Feel free to report any you run into. It will help immensly with trying to catch any and all possible errors that have not yet appeared in my testing
 - Youtube code changes. If/when Youtube changes something, it may cause this script to fail. This isn't a huge concern from a development standpoint because I can always modify the script to adjust. If I fail to catch a change before you do, please report
 
+# PLEASE NOTE
+By using this script, you agree that I am not liable for any damage or action to your device/account, and you take responsibility for what may or may not happen to your device/account.
+
 [^1]: In some cases, you may find that ChromeDriver is already in your system files by default. If it is already on your system by default, it may be located at ```/usr/lib/chromium-browser/chromedriver```
 [^2]: The script may work for these platforms with or without minimal modification, I just have not tested this yet
