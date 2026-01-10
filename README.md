@@ -27,11 +27,6 @@ The main idea behind this project is for it to run as a cronjob on a Raspberry P
 
 In the interest of keeping this README within the scope of the project, I recommened checking out the plethora of [cron resources](https://www.google.com/search?q=python+script+cronjob) out there to learn how to set a cronjob for this script so it will run automatically.
 
-# Planned Updates
-- Additional browser support
-- Support for Windows/other distributions of Linux[^2]
-- Command line interface so editing the code is not required
-
 # Possible Issues
 - There *may* be a crash that occurs as Upnext tries to access Youtube. This isn't caused by the script, but an issue with Chromium (read more about it [here](https://forums.raspberrypi.com/viewtopic.php?t=323640)). A "quick fix" is to edit your cookie settings in Settings -> Privacy -> Cookies -> Always clear cookies when windows are closed -> Add Youtube to list in this format: ```[*.]youtube.com``` and be sure to click the option that removes 3rd party cookies as well
 - Having an instance of Chromium open while the script runs will cause it to fail. Either use a different browser, or run the script when you won't be using your browser
