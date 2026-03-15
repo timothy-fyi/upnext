@@ -1,0 +1,8 @@
+browser_choice: # One of the following: "firefox", "chrome", "edge", "chromium"
+browser_profile: # Path to your browser profile  Example: 'C:\Path\to\firefix\profiles\string.Profile 1
+chromoium_driver: # Path to your chromedriver executable if using Chromium Example: 'C:\Path\to\chromedriver\chromedriver.exe
+playlist_link: # Playlist Link here (copy and paste from address bar)
+subs:
+  - # add
+  - # as
+  - # list

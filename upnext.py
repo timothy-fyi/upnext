@@ -1,46 +1,90 @@
-#! /usr/bin/python3
-
-
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import WebDriverException
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.action_chains import ActionChains
+import os
+import shutil
 import time
-import json
 import yaml
 
-with open('/home/pi/upnext_settings.yaml', 'r') as upnext_settings:
-    settings = yaml.safe_load(upnext_settings)
+def browser_setup(browser, profile_path, chromium_driver=None):
+    if browser.lower() == 'firefox':
+        options = FirefoxOptions()
+        options.add_argument("-profile")
+        options.add_argument(profile_path)
+        return webdriver.Firefox(options=options)
+    
+    elif browser.lower() == 'chrome':
+        options = ChromeOptions()
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_experimental_option('useAutomationExtension', False)
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_argument('--user-data-dir=' + profile_path)
+        return webdriver.Chrome(options=options)
+    
+    elif browser.lower() == 'edge':
+        options = EdgeOptions()
+        options.add_argument('--user-data-dir=' + profile_path)
+        options.add_argument('--profile-directory=' + edge_profile_name)
+        return webdriver.Edge(options=options)
+    
+    elif browser.lower() == 'chromium':
+        options = ChromeOptions()
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_experimental_option('useAutomationExtension', False)
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_argument('--user-data-dir=' + profile_path)
+        service = Service(chromium_driver)
+        return webdriver.Chrome(service=service,options=options)
 
-# user settings
-gc_driver = settings['gc_driver']
-gc_profile = settings['gc_profile']
+    else:
+        raise ValueError('Invalid browser specified. Current options are "firefox", "chrome", "edge", or "chromium".')
+    
+upnext_folder = os.path.dirname(__file__)
+settings_file = os.path.join(upnext_folder, 'upnext_settings.yaml')
+template_file = os.path.join(upnext_folder, 'settings_template.yaml')
+
+if template_file:
+    if not os.path.exists(settings_file):
+        try:
+            shutil.copy(template_file, settings_file)
+            print('File missing. A new one has been created. You must open the new file and define the variables.')
+        except FileNotFoundError:
+            print('Specified template file does not exist.')
+        exit()
+
+try:
+    with open(settings_file, 'r') as upnext_settings:
+        settings = yaml.safe_load(upnext_settings)
+except FileNotFoundError:
+    print('File not found. Please check path.')
+    exit()
+
+browser_choice = settings['browser_choice']
+browser_profile = settings['browser_profile']
+edge_profile_name = settings['edge_profile_name']
+chromium_driver = settings['chromium_driver']
 playlist_link = settings['playlist_link']
-playlist_name = settings['playlist_name']
 subs_to_keep = settings['subs']
 
-# browswer settings
-options = webdriver.ChromeOptions()
-options.add_argument("--user-data-dir=" + gc_profile)
-options.add_experimental_option('excludeSwitches', ['enable-logging'])
-ser = Service(gc_driver)
-browser = webdriver.Chrome(service=ser, options=options)
+# browser = browser_setup(browser='chromium', profile_path='/home/pi/.config/chromium/', chromium_driver='/usr/lib/chromium-browser/chromedriver')
+browser = browser_setup(browser=browser_choice, profile_path=browser_profile, chromium_driver=chromium_driver)
 
 # access playlist
 browser.get(playlist_link)
 time.sleep(7)
 
 # get playlist name for later reference when adding videos
-# have to fix below lines, supposed to automitcally return playlist name without user input
-# playlist_name_element = browser.find_element(By.XPATH, '//*[@id="text"]')
-# playlist_name = playlist_name_element.text
+playlist_name_element = browser.find_element(By.XPATH, "//div[@class='yt-page-header-view-model__scroll-container']//span[@role='text']")
+playlist_name = playlist_name_element.text
 
 videos_to_remove = browser.find_elements(By.XPATH, '//*[@id="video-title"]')
 for videos in videos_to_remove:
