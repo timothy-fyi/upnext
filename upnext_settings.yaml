@@ -1,8 +1,0 @@
-gc_driver: '/usr/lib/chromium-browser/chromedriver'
-gc_profile: '/home/pi/.config/chromium/'
-playlist_link: 'Playlist Link here (copy and paste from address bar)'
-playlist_name: 'Playlist Name Here Exactly as it Appears'
-subs:
-  - add
-  - as
-  - list
