@@ -15,7 +15,7 @@ import shutil
 import time
 import yaml
 
-def browser_setup(browser, profile_path, chromium_driver=None):
+def browser_setup(browser, profile_path):
     if browser.lower() == 'firefox':
         options = FirefoxOptions()
         options.add_argument("-profile")
@@ -76,15 +76,32 @@ playlist_link = settings['playlist_link']
 subs_to_keep = settings['subs']
 
 # browser = browser_setup(browser='chromium', profile_path='/home/pi/.config/chromium/', chromium_driver='/usr/lib/chromium-browser/chromedriver')
-browser = browser_setup(browser=browser_choice, profile_path=browser_profile, chromium_driver=chromium_driver)
+browser = browser_setup(browser=browser_choice, profile_path=browser_profile)
 
 # access playlist
 browser.get(playlist_link)
 time.sleep(7)
 
 # get playlist name for later reference when adding videos
-playlist_name_element = browser.find_element(By.XPATH, "//div[@class='yt-page-header-view-model__scroll-container']//span[@role='text']")
-playlist_name = playlist_name_element.text
+selectors = [
+    (By.CLASS_NAME, "yt-core-attributed-string--white-space-pre-wrap"),
+    (By.CLASS_NAME, "dynamicTextViewModelH1"),
+    (By.XPATH, "//div[@class='yt-page-header-view-model__scroll-container']//span[@role='text']"),
+    (By.XPATH, "//*[@id='page-header']/yt-page-header-renderer/yt-page-header-view-model/div/div[1]/div/yt-dynamic-text-view-model/h1/span"),   
+    (By.XPATH, "//*[@id='page-manager']/ytd-browse[1]/yt-page-header-renderer/yt-page-header-view-model/div[2]/div/div[1]/div/yt-dynamic-text-view-model/h1/span")
+]
+
+playlist_name = None
+for method, value in selectors:
+    try:
+        element = WebDriverWait(browser, 20).until(
+            EC.presence_of_element_located((method, value))
+        )
+        if element.text:
+            playlist_name = element.text
+            break
+    except NoSuchElementException:
+        continue
 
 videos_to_remove = browser.find_elements(By.XPATH, '//*[@id="video-title"]')
 for videos in videos_to_remove:
@@ -104,26 +121,41 @@ browser.get('https://www.youtube.com/feed/subscriptions')
 
 # identifys video elements
 time.sleep(5)
-video_elements = browser.find_elements(By.CSS_SELECTOR, 'ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-video-renderer')
+video_elements = browser.find_elements(By.CSS_SELECTOR, 'ytd-rich-item-renderer')
 
 # adds selected channel subscriptions to playlist
 time.sleep(5)
 for element in video_elements:
-    channel_names = element.find_elements(By.CSS_SELECTOR, 'a.yt-core-attributed-string__link')
+    browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+    time.sleep(0.2)
+
+    channel_names = element.find_elements(By.CSS_SELECTOR, "a.yt-core-attributed-string__link")
 
     for name in channel_names:    
         if name.text in subs_to_keep:
-            try:        
+            try:
                 watched_flag = element.find_element(By.CLASS_NAME, 'ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment')
-            # adds videos that haven't been watched to playlist
+                print(watched_flag.text)
             except NoSuchElementException:
+
+            # resume_overlays = element.find_element(
+            #     By.CSS_SELECTOR,
+            #     "ytd-thumbnail-overlay-resume-playback-renderer #progress"
+            # )
+
+            # if resume_overlays:
+            #     # video has been watched (partially or fully)
+            #     print("Skipping watched video")
+            #     break
+
+                # adds videos that haven't been watched to playlist
                 hover_two = ActionChains(browser).move_to_element(name)
                 hover_two.perform()
                 # finds video playlist options
                 WebDriverWait(element, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'ytd-menu-renderer yt-icon-button, ytd-menu-renderer button, .yt-lockup-metadata-view-model__menu-button button'))).click()
                 time.sleep(2)
                 # add to playlist click 
-                WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'yt-list-item-view-model.yt-list-item-view-model:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > span:nth-child(1)'))).click()
+                WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.XPATH, '//span[contains(text(), "Save to playlist")]'))).click()
                 time.sleep(1)                
                 # identify correct playlist
                 playlist_name_path = '//*[contains(text(), "'+ playlist_name +'")]'
@@ -137,9 +169,6 @@ for element in video_elements:
                     except (ElementClickInterceptedException, ElementNotInteractableException) as error:
                         pass
                 time.sleep(4)
-                # close out of menu options -> possibly obsolete with recent Youtube update
-                # WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'yt-icon.ytd-add-to-playlist-renderer'))).click()
-                # time.sleep(4)
 
 # quits
 time.sleep(3)
