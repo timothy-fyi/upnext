@@ -137,17 +137,6 @@ for element in video_elements:
                 watched_flag = element.find_element(By.CLASS_NAME, 'ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment')
                 print(watched_flag.text)
             except NoSuchElementException:
-
-            # resume_overlays = element.find_element(
-            #     By.CSS_SELECTOR,
-            #     "ytd-thumbnail-overlay-resume-playback-renderer #progress"
-            # )
-
-            # if resume_overlays:
-            #     # video has been watched (partially or fully)
-            #     print("Skipping watched video")
-            #     break
-
                 # adds videos that haven't been watched to playlist
                 hover_two = ActionChains(browser).move_to_element(name)
                 hover_two.perform()
