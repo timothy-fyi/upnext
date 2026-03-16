@@ -2,3 +2,5 @@ geckodriver.log
 chromedriver.log
 upnext_settings.yaml
 quirks.txt
+/holding/
+planned_releases.txt

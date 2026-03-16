@@ -56,7 +56,7 @@ if template_file:
     if not os.path.exists(settings_file):
         try:
             shutil.copy(template_file, settings_file)
-            print('File missing. A new one has been created. You must open the new file and define the variables.')
+            print('upnext_settings.yaml was missing. It has now been created. You must open the new file and define the variables.')
         except FileNotFoundError:
             print('Specified template file does not exist.')
         exit()
@@ -65,7 +65,7 @@ try:
     with open(settings_file, 'r') as upnext_settings:
         settings = yaml.safe_load(upnext_settings)
 except FileNotFoundError:
-    print('File not found. Please check path.')
+    print('upnext_settings.yaml not found.')
     exit()
 
 browser_choice = settings['browser_choice']
@@ -75,7 +75,6 @@ chromium_driver = settings['chromium_driver']
 playlist_link = settings['playlist_link']
 subs_to_keep = settings['subs']
 
-# browser = browser_setup(browser='chromium', profile_path='/home/pi/.config/chromium/', chromium_driver='/usr/lib/chromium-browser/chromedriver')
 browser = browser_setup(browser=browser_choice, profile_path=browser_profile)
 
 # access playlist
@@ -83,6 +82,8 @@ browser.get(playlist_link)
 time.sleep(7)
 
 # get playlist name for later reference when adding videos
+# the location can change depending on browser or even window size, so multiple selectors need to be used... currently
+# can possibly be improved by using a more general selector that looks for the playlist name text
 selectors = [
     (By.CLASS_NAME, "yt-core-attributed-string--white-space-pre-wrap"),
     (By.CLASS_NAME, "dynamicTextViewModelH1"),
@@ -133,11 +134,11 @@ for element in video_elements:
 
     for name in channel_names:    
         if name.text in subs_to_keep:
+            # adds videos that haven't been watched to playlist - tries to find progress bar, if it does, skips, if not, adds to playlist
             try:
                 watched_flag = element.find_element(By.CLASS_NAME, 'ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment')
                 print(watched_flag.text)
             except NoSuchElementException:
-                # adds videos that haven't been watched to playlist
                 hover_two = ActionChains(browser).move_to_element(name)
                 hover_two.perform()
                 # finds video playlist options
