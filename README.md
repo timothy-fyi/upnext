@@ -26,11 +26,10 @@
    * **playlist_link** - The direct link to your playlist on YouTube. It should look something like this: ```https://www.youtube.com/playlist?list=somerandomstringoflettersandnumbers```
    * **playlist_name** - The name of your playlist. Case sensitive.
    * **subs** - The list of channels you would like the script to add to your playlist. **Not** case sensitive. Ensure that the channels are separated by a new line with a dash. For example: 
-   subs:
-   - Channel 1
-   - Channel 2
-   - Channel 3
-   ```
+   > subs:
+   > - Channel 1
+   > - Channel 2
+   > - Channel 3
 
 If you want Upnext to run on a schedule, I recommened creating a cronjob (if using Linux) or utilizing Task Scheduler (if using Windows). 
 
