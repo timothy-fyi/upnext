@@ -1,6 +1,4 @@
-geckodriver.log
-chromedriver.log
+__pycache__/
 upnext_settings.yaml
-quirks.txt
-/holding/
-planned_releases.txt
+test_upnext.py
+/docs*
