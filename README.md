@@ -30,6 +30,7 @@
    - Channel 1
    - Channel 2
    - Channel 3
+   ```
 
 If you want Upnext to run on a schedule, I recommened creating a cronjob (if using Linux) or utilizing Task Scheduler (if using Windows). 
 
