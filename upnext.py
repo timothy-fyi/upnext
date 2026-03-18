@@ -167,7 +167,7 @@ def playlist_build(browser, subs_to_keep, playlist_name, max_videos):
                                 pass
                         time.sleep(4)
 
-    print('Playlist build complete. Total videos added: ' + str(videos_added+1))
+    print('Playlist build complete. Total videos added: ' + str(videos_added))
 
 
 def main():
