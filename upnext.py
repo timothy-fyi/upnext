@@ -3,6 +3,7 @@ import shutil
 import time
 import yaml
 from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
@@ -16,24 +17,56 @@ from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.action_chains import ActionChains
 
 
-def load_yaml(file, template=None):
+def load_yaml(file: str, template: str | None = None) -> dict | None:
+    """Load a YAML file or create a YAML file from a template.
+
+    This function attempts to load a YAML file from the specified path.
+    If the file does not exist and a template path is provided,
+    it will copy the template file to the specified path.
+    If the file exists, it will load and return the contents as a dictionary.
+
+    Args:
+        file (str): Path to the YAML file to load.
+        template (str | None): Path to a template YAML file to copy if the specified file does not exist. Defaults to None.
+
+    Returns:
+        Dict: Returns a dictionary of the loaded YAML file.
+    """
     if template:
         if not os.path.exists(file):
             try:
                 shutil.copy(template, file)
-                print(
-                    "Settings file missing. A new one has been created. You must open the new file and define the variables."
-                )
+                print("Specified file missing. A new one has been created.")
             except FileNotFoundError:
                 print("Specified template file does not exist.")
     try:
         with open(file, "r") as config_file:
             return yaml.safe_load(config_file)
     except FileNotFoundError:
-        print("Settings file not found. Please check path.")
+        print("File not found. Please check path.")
 
 
-def browser_setup(browser, profile_path, edge_profile_name=None, chromium_driver=None):
+def browser_setup(
+    browser: str,
+    profile_path: str,
+    edge_profile_name: str | None = None,
+    chromium_driver: str | None = None,
+) -> WebDriver:
+    """Create and configure a Selenium WebDriver instance for the specified browser.
+
+    This function initializes a WebDriver for Firefox, Chrome, Edge, or Chromium,
+    applying the appropriate profile directory and browser-specific options. For
+    Chromium, a custom driver path needs to be provided.
+
+    Args:
+        browser (str): Browser name (Firefox, Chrome, Edge, or Chromium).
+        profile_path (str): Path to the browser's user profile directory.
+        edge_profile_name (str | None): Name of the Edge profile to use. Required only for Edge use.
+        chromium_driver (str | None): Path to the Chromium driver executable. Required only for Chromium use.
+
+    Returns:
+        WebDriver: Returns a WebDriver instance for the specified browser.
+    """
     if browser.lower() == "firefox":
         options = FirefoxOptions()
         options.add_argument("-profile")
@@ -69,7 +102,21 @@ def browser_setup(browser, profile_path, edge_profile_name=None, chromium_driver
         )
 
 
-def playlist_cleanup(browser):
+def playlist_cleanup(browser: WebDriver) -> None:
+    """Clean up a YouTube playlist by removing all videos within it.
+
+    This function removes all videos from a YouTube playlist by iterating through
+    the videos in the playlist and using Selenium to interact with the browser.
+    It locates the video options menu for each video, clicks it, and selects the
+    option to remove the video from the playlist. It continues this process
+    until all videos have been removed.
+
+    Args:
+        browser (WebDriver): Selenium WebDriver instance to interact with the browser.
+
+    Returns:
+        None
+    """
     videos_to_remove = browser.find_elements(By.XPATH, '//*[@id="video-title"]')
     for videos in videos_to_remove:
         try:
@@ -97,7 +144,28 @@ def playlist_cleanup(browser):
             pass
 
 
-def playlist_build(browser, subs_to_keep, playlist_name, max_videos):
+def playlist_build(
+    browser: WebDriver, subs_to_keep: list[str], playlist_name: str, max_videos: int
+) -> None:
+    """Build a YouTube playlist by adding unwatched videos from specified channel subscriptions.
+
+    This function scans the YouTube subscription feed using
+    a Selenium WebDriver instance. It checks whether the video's
+    channel name matches one of the channels in `subs_to_keep`. If the video
+    has not been watched (determined by the absence of the progress bar), the
+    function will open the video options menu, select "Save to playlist", and add it to
+    the playlist specified. It continues until `max_videos` is reached
+    or all visible videos have been gone through (if set to None).
+
+    Args:
+        browser (WebDriver): Selenium WebDriver instance to interact with the browser.
+        subs_to_keep (list): List of channel names to use when building the playlist. Only videos from these channels will be added.
+        playlist_name (str): Name of the playlist to add videos to. Case sensitive.
+        max_videos (int): Maximum number of videos to add to the playlist. If None, will continue until the end of the subscription feed is reached.
+
+    Returns:
+        None
+    """
     videos_added = 0
 
     video_elements = browser.find_elements(By.CSS_SELECTOR, "ytd-rich-item-renderer")
@@ -142,7 +210,10 @@ def playlist_build(browser, subs_to_keep, playlist_name, max_videos):
                         # add to playlist click
                         WebDriverWait(browser, 20).until(
                             EC.element_to_be_clickable(
-                                (By.XPATH, '//span[contains(text(), "Save to playlist")]')
+                                (
+                                    By.XPATH,
+                                    '//span[contains(text(), "Save to playlist")]',
+                                )
                             )
                         ).click()
                         time.sleep(1)
@@ -167,7 +238,7 @@ def playlist_build(browser, subs_to_keep, playlist_name, max_videos):
                                 pass
                         time.sleep(4)
 
-    print('Playlist build complete. Total videos added: ' + str(videos_added))
+    print("Playlist build complete. Total videos added: " + str(videos_added))
 
 
 def main():
