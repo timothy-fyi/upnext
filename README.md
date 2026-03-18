@@ -4,6 +4,9 @@
 
 **Upnext** started as a YouTube playlist builder for the Chromium browser, with the main idea being it would run as a cronjob on a Raspberry Pi. However, it has since transformed to work across multiple browsers and multiple operating systems.
 
+# Requirements
+- Python 3.10+
+
 # Compatible Browsers / OS
 - FireFox (Widnows)
 - Chrome (Windows)
@@ -38,6 +41,7 @@ If you want Upnext to run on a schedule, I recommened creating a cronjob (if usi
 # Issues out of my control
 - There *may* be a crash when using Chromium on Raspberry PI (but also on any platform) that occurs as Upnext tries to access YouTube. This isn't caused by the script, but an issue with Chromium (read more about it [here](https://forums.raspberrypi.com/viewtopic.php?t=323640)). A "quick fix" is to edit your cookie settings in Settings -> Privacy -> Cookies -> Always clear cookies when windows are closed -> Add YouTube to list in this format: ```[*.]youtube.com``` and be sure to click the option that removes 3rd party cookies as well
 - YouTube code changes. If/when YouTube changes something, it may cause this script to fail. This isn't a huge concern from a development standpoint because I can always modify the script to adjust. If I fail to catch a change before you do, please report
+- Sometimes (rarely), YouTube will "hang" when loading the subscription page. This causes the script to not run the ```playlist_build``` function, requiring manual ending of the script or waiting for it to time out
 
 # Disclaimer
 By using this script, you agree that I am not liable for any damage or action to your device/account, and you take responsibility for what may or may not happen to your device/account.
