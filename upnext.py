@@ -97,69 +97,77 @@ def playlist_cleanup(browser):
             pass
 
 
-def playlist_build(browser, subs_to_keep, playlist_name):
+def playlist_build(browser, subs_to_keep, playlist_name, max_videos):
+    videos_added = 0
+
     video_elements = browser.find_elements(By.CSS_SELECTOR, "ytd-rich-item-renderer")
 
     # adds selected channel subscriptions to playlist
     time.sleep(5)
+
     for element in video_elements:
-        browser.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});", element
-        )
-        time.sleep(0.2)
+        if max_videos is None or videos_added < max_videos:
+            browser.execute_script(
+                "arguments[0].scrollIntoView({block: 'center'});", element
+            )
+            time.sleep(0.2)
 
-        channel_names = element.find_elements(
-            By.CSS_SELECTOR, "a.yt-core-attributed-string__link"
-        )
+            channel_names = element.find_elements(
+                By.CSS_SELECTOR, "a.yt-core-attributed-string__link"
+            )
 
-        for name in channel_names:
-            if name.text in subs_to_keep:
-                # adds videos that haven't been watched to playlist - tries to find progress bar, if it does, skips, if not, adds to playlist
-                try:
-                    watched_flag = element.find_element(
-                        By.CLASS_NAME,
-                        "ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment",
-                    )
-                    print(watched_flag.text)
-                except NoSuchElementException:
-                    hover_two = ActionChains(browser).move_to_element(name)
-                    hover_two.perform()
-                    # finds video playlist options
-                    WebDriverWait(element, 20).until(
-                        EC.element_to_be_clickable(
-                            (
-                                By.CSS_SELECTOR,
-                                "ytd-menu-renderer yt-icon-button, ytd-menu-renderer button, .yt-lockup-metadata-view-model__menu-button button",
+            for name in channel_names:
+                if name.text in subs_to_keep:
+                    # adds videos that haven't been watched to playlist - tries to find progress bar, if it does, skips, if not, adds to playlist
+                    try:
+                        watched_flag = element.find_element(
+                            By.CLASS_NAME,
+                            "ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment",
+                        )
+                        print(watched_flag.text)
+                    except NoSuchElementException:
+
+                        hover_two = ActionChains(browser).move_to_element(name)
+                        hover_two.perform()
+                        # finds video playlist options
+                        WebDriverWait(element, 20).until(
+                            EC.element_to_be_clickable(
+                                (
+                                    By.CSS_SELECTOR,
+                                    "ytd-menu-renderer yt-icon-button, ytd-menu-renderer button, .yt-lockup-metadata-view-model__menu-button button",
+                                )
                             )
-                        )
-                    ).click()
-                    time.sleep(2)
-                    # add to playlist click
-                    WebDriverWait(browser, 20).until(
-                        EC.element_to_be_clickable(
-                            (By.XPATH, '//span[contains(text(), "Save to playlist")]')
-                        )
-                    ).click()
-                    time.sleep(1)
-                    # identify correct playlist
-                    playlist_name_path = (
-                        '//*[contains(text(), "' + playlist_name + '")]'
-                    )
-                    # adds all elements that have playlist name text to list
-                    correct_playlist_check = browser.find_elements(
-                        By.XPATH, playlist_name_path
-                    )
-                    # try to click each item in list, if error, move to the next
-                    for check in correct_playlist_check:
+                        ).click()
+                        time.sleep(2)
+                        # add to playlist click
+                        WebDriverWait(browser, 20).until(
+                            EC.element_to_be_clickable(
+                                (By.XPATH, '//span[contains(text(), "Save to playlist")]')
+                            )
+                        ).click()
                         time.sleep(1)
-                        try:
-                            check.click()
-                        except (
-                            ElementClickInterceptedException,
-                            ElementNotInteractableException,
-                        ) as error:
-                            pass
-                    time.sleep(4)
+                        # identify correct playlist
+                        playlist_name_path = (
+                            '//*[contains(text(), "' + playlist_name + '")]'
+                        )
+                        # adds all elements that have playlist name text to list
+                        correct_playlist_check = browser.find_elements(
+                            By.XPATH, playlist_name_path
+                        )
+                        # try to click each item in list, if error, move to the next
+                        for check in correct_playlist_check:
+                            time.sleep(1)
+                            try:
+                                check.click()
+                                videos_added += 1
+                            except (
+                                ElementClickInterceptedException,
+                                ElementNotInteractableException,
+                            ) as error:
+                                pass
+                        time.sleep(4)
+
+    print('Playlist build complete. Total videos added: ' + str(videos_added))
 
 
 def main():
@@ -184,6 +192,7 @@ def main():
         playlist_link = settings["playlist_link"]
         playlist_name = settings["playlist_name"]
         subs_to_keep = settings["subs"]
+        max_videos = settings["max_videos"]
 
         browser = browser_setup(
             browser=browser_choice,
@@ -206,7 +215,7 @@ def main():
             browser.get("https://www.youtube.com/feed/subscriptions")
             time.sleep(5)
 
-            playlist_build(browser, subs_to_keep, playlist_name)
+            playlist_build(browser, subs_to_keep, playlist_name, max_videos)
             time.sleep(3)
         finally:
             print("Closing browser...")
