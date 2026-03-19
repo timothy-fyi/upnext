@@ -102,7 +102,9 @@ def browser_setup(
         )
 
 
-def playlist_cleanup(browser: WebDriver) -> None:
+def playlist_cleanup(
+    browser: WebDriver, playlist_link: str, close_browser: bool = False
+) -> None:
     """Clean up a YouTube playlist by removing all videos within it.
 
     This function removes all videos from a YouTube playlist by iterating through
@@ -113,10 +115,17 @@ def playlist_cleanup(browser: WebDriver) -> None:
 
     Args:
         browser (WebDriver): Selenium WebDriver instance to interact with the browser.
+        playlist_link (str): URL of the YouTube playlist to clean up.
+        close_browser (bool): If True, browser will be closed after cleanup. If False, browser will remain open for further actions.
 
     Returns:
         None
     """
+    print("Accessing playlist...")
+    browser.get(playlist_link)
+    # utilizing time sleep for slower systems (i.e. older Raspberry Pi models)
+    time.sleep(7)
+    print("Cleaning up playlist...")
     videos_to_remove = browser.find_elements(By.XPATH, '//*[@id="video-title"]')
     for videos in videos_to_remove:
         try:
@@ -142,10 +151,18 @@ def playlist_cleanup(browser: WebDriver) -> None:
             time.sleep(1)
         except ElementNotInteractableException:
             pass
+    print("Playlist cleanup complete.")
+    if close_browser:
+        print("Closing browser...")
+        browser.quit()
 
 
 def playlist_build(
-    browser: WebDriver, subs_to_keep: list[str], playlist_name: str, max_videos: int
+    browser: WebDriver,
+    subs_to_keep: list[str],
+    playlist_name: str,
+    max_videos: int = None,
+    close_browser: bool = False,
 ) -> None:
     """Build a YouTube playlist by adding unwatched videos from specified channel subscriptions.
 
@@ -162,83 +179,96 @@ def playlist_build(
         subs_to_keep (list): List of channel names to use when building the playlist. Only videos from these channels will be added.
         playlist_name (str): Name of the playlist to add videos to. Case sensitive.
         max_videos (int): Maximum number of videos to add to the playlist. If None, will continue until the end of the subscription feed is reached.
+        close_browser (bool): If True, browser will be closed after building the playlist. If False, browser will remain open.
 
     Returns:
         None
     """
-    videos_added = 0
+    try:
+        print("Accessing subscription feed...")
+        browser.get("https://www.youtube.com/feed/subscriptions")
+        time.sleep(5)
+        print("Adding videos to playlist...")
 
-    video_elements = browser.find_elements(By.CSS_SELECTOR, "ytd-rich-item-renderer")
+        videos_added = 0
 
-    # adds selected channel subscriptions to playlist
-    time.sleep(5)
+        video_elements = browser.find_elements(
+            By.CSS_SELECTOR, "ytd-rich-item-renderer"
+        )
 
-    for element in video_elements:
-        if max_videos is None or videos_added < max_videos:
-            browser.execute_script(
-                "arguments[0].scrollIntoView({block: 'center'});", element
-            )
-            time.sleep(0.2)
+        # adds selected channel subscriptions to playlist
+        time.sleep(5)
 
-            channel_names = element.find_elements(
-                By.CSS_SELECTOR, "a.yt-core-attributed-string__link"
-            )
+        for element in video_elements:
+            if max_videos is None or videos_added < max_videos:
+                browser.execute_script(
+                    "arguments[0].scrollIntoView({block: 'center'});", element
+                )
+                time.sleep(0.2)
 
-            for name in channel_names:
-                if name.text in subs_to_keep:
-                    # adds videos that haven't been watched to playlist - tries to find progress bar, if it does, skips, if not, adds to playlist
-                    try:
-                        watched_flag = element.find_element(
-                            By.CLASS_NAME,
-                            "ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment",
-                        )
-                        print(watched_flag.text)
-                    except NoSuchElementException:
+                channel_names = element.find_elements(
+                    By.CSS_SELECTOR, "a.yt-core-attributed-string__link"
+                )
 
-                        hover_two = ActionChains(browser).move_to_element(name)
-                        hover_two.perform()
-                        # finds video playlist options
-                        WebDriverWait(element, 20).until(
-                            EC.element_to_be_clickable(
-                                (
-                                    By.CSS_SELECTOR,
-                                    "ytd-menu-renderer yt-icon-button, ytd-menu-renderer button, .yt-lockup-metadata-view-model__menu-button button",
-                                )
+                for name in channel_names:
+                    if name.text in subs_to_keep:
+                        # adds videos that haven't been watched to playlist - tries to find progress bar, if it does, skips, if not, adds to playlist
+                        try:
+                            watched_flag = element.find_element(
+                                By.CLASS_NAME,
+                                "ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment",
                             )
-                        ).click()
-                        time.sleep(2)
-                        # add to playlist click
-                        WebDriverWait(browser, 20).until(
-                            EC.element_to_be_clickable(
-                                (
-                                    By.XPATH,
-                                    '//span[contains(text(), "Save to playlist")]',
+                            print(watched_flag.text)
+                        except NoSuchElementException:
+
+                            hover_two = ActionChains(browser).move_to_element(name)
+                            hover_two.perform()
+                            # finds video playlist options
+                            WebDriverWait(element, 20).until(
+                                EC.element_to_be_clickable(
+                                    (
+                                        By.CSS_SELECTOR,
+                                        "ytd-menu-renderer yt-icon-button, ytd-menu-renderer button, .yt-lockup-metadata-view-model__menu-button button",
+                                    )
                                 )
-                            )
-                        ).click()
-                        time.sleep(1)
-                        # identify correct playlist
-                        playlist_name_path = (
-                            '//*[contains(text(), "' + playlist_name + '")]'
-                        )
-                        # adds all elements that have playlist name text to list
-                        correct_playlist_check = browser.find_elements(
-                            By.XPATH, playlist_name_path
-                        )
-                        # try to click each item in list, if error, move to the next
-                        for check in correct_playlist_check:
+                            ).click()
+                            time.sleep(2)
+                            # add to playlist click
+                            WebDriverWait(browser, 20).until(
+                                EC.element_to_be_clickable(
+                                    (
+                                        By.XPATH,
+                                        '//span[contains(text(), "Save to playlist")]',
+                                    )
+                                )
+                            ).click()
                             time.sleep(1)
-                            try:
-                                check.click()
-                                videos_added += 1
-                            except (
-                                ElementClickInterceptedException,
-                                ElementNotInteractableException,
-                            ) as error:
-                                pass
-                        time.sleep(4)
+                            # identify correct playlist
+                            playlist_name_path = (
+                                '//*[contains(text(), "' + playlist_name + '")]'
+                            )
+                            # adds all elements that have playlist name text to list
+                            correct_playlist_check = browser.find_elements(
+                                By.XPATH, playlist_name_path
+                            )
+                            # try to click each item in list, if error, move to the next
+                            for check in correct_playlist_check:
+                                time.sleep(1)
+                                try:
+                                    check.click()
+                                    videos_added += 1
+                                except (
+                                    ElementClickInterceptedException,
+                                    ElementNotInteractableException,
+                                ) as error:
+                                    pass
+                            time.sleep(4)
 
-    print("Playlist build complete. Total videos added: " + str(videos_added))
+        print("Playlist build complete. Total videos added: " + str(videos_added))
+    finally:
+        if close_browser:
+            print("Closing browser...")
+            browser.quit()
 
 
 def main():
@@ -272,25 +302,10 @@ def main():
             chromium_driver=chromium_driver,
         )
 
-        try:
-            # access playlist
-            print("Accessing playlist...")
-            browser.get(playlist_link)
-            time.sleep(7)
-
-            print("Cleaning up playlist...")
-            playlist_cleanup(browser)
-            time.sleep(3)
-
-            print("Adding videos to playlist...")
-            browser.get("https://www.youtube.com/feed/subscriptions")
-            time.sleep(5)
-
-            playlist_build(browser, subs_to_keep, playlist_name, max_videos)
-            time.sleep(3)
-        finally:
-            print("Closing browser...")
-            browser.quit()
+        playlist_cleanup(browser, playlist_link, close_browser=False)
+        playlist_build(
+            browser, subs_to_keep, playlist_name, max_videos, close_browser=True
+        )
 
 
 if __name__ == "__main__":
