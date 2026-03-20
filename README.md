@@ -1,8 +1,8 @@
 # Upnext - An automated YouTube playlist builder
 
 **Upnext** is a YouTube playlist automation tool that:
-- Removes all existing videos for a selected playlist
-- Adds new, unwatched videos to a selected from defined subscriptions
+- Removes all existing videos from a selected playlist
+- Adds new, unwatched videos to a selected playlist from defined subscriptions
 
 It's designed to run automatically (via cron or Task Scheduler), but can also be imported into your own projects.
 
