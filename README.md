@@ -61,6 +61,7 @@ subs:
 - **chromium_driver** - Path to your chromedriver (i.e. ```/usr/lib/chromium-browser/chromedriver```). Required for Chromium only
 - **playlist_link** - Full YouTube playlist URL
 - **playlist_name** - Must match exactly (case sensitive)
+- **max_videos** - Maximum amount of videos to add before ending script. Default = 10
 - **subs** - List of channel names
 
 ### 3. **Account login setup**
