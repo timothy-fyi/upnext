@@ -54,15 +54,15 @@ subs:
   - Channel Three
 ```
 **Detailed settings explanation:**
-- **browser_choice** - Case insensitive. Firefox, Chrome, Edge, or Chromium
-- **browser_profile** - Path to your browser profile. It is located in different locations depending on the 
+- **browser_choice:** Case insensitive. Firefox, Chrome, Edge, or Chromium
+- **browser_profile:** Path to your browser profile. It is located in different locations depending on the 
    browser. For example, for Chromium it may be located at ```/home/your_name/.config/chromium/```, but FireFox it may be located at ```C:\Users\yourname\AppData\Roaming\Mozilla\Firefox\Profiles\RandomString.Profile Number```
-- **edge_profile_name** - Name of your Edge profile (i.e. Profile 1, Profile 2, etc). Required for Edge only
-- **chromium_driver** - Path to your chromedriver (i.e. ```/usr/lib/chromium-browser/chromedriver```). Required for Chromium only
-- **playlist_link** - Full YouTube playlist URL
-- **playlist_name** - Must match exactly (case sensitive)
-- **max_videos** - Maximum amount of videos to add before ending script. Default = 10
-- **subs** - List of channel names
+- **edge_profile_name:** Name of your Edge profile (i.e. Profile 1, Profile 2, etc). Required for Edge only
+- **chromium_driver:** Path to your chromedriver (i.e. ```/usr/lib/chromium-browser/chromedriver```). Required for Chromium only
+- **playlist_link:** Full YouTube playlist URL
+- **playlist_name:** Must match exactly (case sensitive)
+- **max_videos:** Maximum amount of videos to add before ending script. Default = 10
+- **subs:** List of channel names
 
 ### 3. **Account login setup**
 This script **does not** require, see, or use your YouTube login information.
