@@ -222,7 +222,6 @@ def playlist_build(
                                     By.CLASS_NAME,
                                     "ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment",
                                 )
-                                print(watched_flag.text)
                             except NoSuchElementException:
                                 hover_two = ActionChains(browser).move_to_element(name)
                                 hover_two.perform()
