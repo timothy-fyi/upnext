@@ -51,6 +51,7 @@ def browser_setup(
     profile_path: str,
     edge_profile_name: str | None = None,
     chromium_driver: str | None = None,
+    headless: bool = False
 ) -> WebDriver:
     """Create and configure a Selenium WebDriver instance for the specified browser.
 
@@ -63,6 +64,7 @@ def browser_setup(
         profile_path (str): Path to the browser's user profile directory.
         edge_profile_name (str | None): Name of the Edge profile to use. Required only for Edge use.
         chromium_driver (str | None): Path to the Chromium driver executable. Required only for Chromium use.
+        headless (bool): False = browser window will visibly open when running, True = browser will not visibly open when running 
 
     Returns:
         WebDriver: Returns a WebDriver instance for the specified browser.
@@ -71,6 +73,8 @@ def browser_setup(
         options = FirefoxOptions()
         options.add_argument("-profile")
         options.add_argument(profile_path)
+        if headless:
+            options.add_argument("-headless")
         return webdriver.Firefox(options=options)
 
     elif browser.lower() == "chrome":
@@ -79,12 +83,17 @@ def browser_setup(
         options.add_experimental_option("useAutomationExtension", False)
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_argument("--user-data-dir=" + profile_path)
+        if headless:
+            options.add_argument("--headless=chrome")
         return webdriver.Chrome(options=options)
 
     elif browser.lower() == "edge":
         options = EdgeOptions()
         options.add_argument("--user-data-dir=" + profile_path)
+        options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_argument("--profile-directory=" + edge_profile_name)
+        if headless:
+            options.add_argument("--headless=new")
         return webdriver.Edge(options=options)
 
     elif browser.lower() == "chromium":
@@ -93,6 +102,8 @@ def browser_setup(
         options.add_experimental_option("useAutomationExtension", False)
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_argument("--user-data-dir=" + profile_path)
+        if headless:
+            options.add_argument("--headless")
         service = Service(chromium_driver)
         return webdriver.Chrome(service=service, options=options)
 
@@ -309,12 +320,14 @@ def main():
         subs_to_keep = settings["subs"]
         max_videos = settings["max_videos"]
         keep_unwatched = settings["keep_unwatched"]
+        headless = settings["headless"]
 
         browser = browser_setup(
             browser=browser_choice,
             profile_path=browser_profile,
             edge_profile_name=edge_profile_name,
             chromium_driver=chromium_driver,
+            headless=headless
         )
 
         playlist_cleanup(
