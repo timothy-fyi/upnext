@@ -48,6 +48,7 @@ chromium_driver: /path/to/chromedriver
 playlist_link: https://www.youtube.com/playlist?list=XXXX
 playlist_name: My Playlist
 max_videos: 10
+keep_unwatched: False
 subs:
   - Channel One
   - Channel Two
