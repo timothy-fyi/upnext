@@ -103,7 +103,10 @@ def browser_setup(
 
 
 def playlist_cleanup(
-    browser: WebDriver, playlist_link: str, close_browser: bool = False
+    browser: WebDriver,
+    playlist_link: str,
+    keep_unwatched: bool = False,
+    close_browser: bool = False,
 ) -> None:
     """Clean up a YouTube playlist by removing all videos within it.
 
@@ -116,41 +119,49 @@ def playlist_cleanup(
     Args:
         browser (WebDriver): Selenium WebDriver instance to interact with the browser.
         playlist_link (str): URL of the YouTube playlist to clean up.
+        keep_unwatched (bool): If True, function will keep videos that haven't been watched. If False, it will remove all
         close_browser (bool): If True, browser will be closed after cleanup. If False, browser will remain open for further actions.
 
     Returns:
         None
     """
+
+    def remove_videos(video):
+        try:
+            ActionChains(browser).move_to_element(video).perform()
+
+            menu_button = video.find_element(By.CSS_SELECTOR, "ytd-menu-renderer")
+            menu_button.click()
+
+            WebDriverWait(browser, 5).until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, "//tp-yt-paper-item[contains(., 'Remove')]")
+                )
+            ).click()
+
+            time.sleep(1)
+
+        except Exception as e:
+            print(e)
+
     print("Accessing playlist...")
     browser.get(playlist_link)
     # utilizing time sleep for slower systems (i.e. older Raspberry Pi models)
     time.sleep(7)
     print("Cleaning up playlist...")
-    videos_to_remove = browser.find_elements(By.XPATH, '//*[@id="video-title"]')
-    for videos in videos_to_remove:
-        try:
-            hover = ActionChains(browser).move_to_element(videos)
-            hover.perform()
-            WebDriverWait(browser, 5).until(
-                EC.element_to_be_clickable(
-                    (
-                        By.CSS_SELECTOR,
-                        "ytd-playlist-video-renderer.style-scope:nth-child(1) > div:nth-child(3) > ytd-menu-renderer:nth-child(1)",
-                    )
+    videos_to_remove = browser.find_elements(By.XPATH, "//ytd-playlist-video-renderer")
+
+    for video in videos_to_remove:
+        if keep_unwatched:
+            try:
+                video.find_element(
+                    By.XPATH, ".//ytd-thumbnail-overlay-resume-playback-renderer"
                 )
-            ).click()
-            time.sleep(1)
-            WebDriverWait(browser, 5).until(
-                EC.element_to_be_clickable(
-                    (
-                        By.CSS_SELECTOR,
-                        "ytd-menu-service-item-renderer.style-scope:nth-child(4) > tp-yt-paper-item:nth-child(1)",
-                    )
-                )
-            ).click()
-            time.sleep(1)
-        except ElementNotInteractableException:
-            pass
+                remove_videos(video)
+            except NoSuchElementException:
+                pass
+        else:
+            remove_videos(video)
     print("Playlist cleanup complete.")
     if close_browser:
         print("Closing browser...")
@@ -216,13 +227,12 @@ def playlist_build(
                             By.CSS_SELECTOR, "a.yt-lockup-metadata-view-model__title"
                         ).text
                         if video_title not in added_videos:
-                        # adds videos that haven't been watched or already added to playlist - tries to find progress bar, if it does, skips, if not, adds to playlist
+                            # adds videos that haven't been watched or already added to playlist - tries to find progress bar, if it does, skips, if not, adds to playlist
                             try:
                                 watched_flag = element.find_element(
                                     By.CLASS_NAME,
                                     "ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment",
                                 )
-                                print(watched_flag.text)
                             except NoSuchElementException:
                                 hover_two = ActionChains(browser).move_to_element(name)
                                 hover_two.perform()
@@ -298,6 +308,7 @@ def main():
         playlist_name = settings["playlist_name"]
         subs_to_keep = settings["subs"]
         max_videos = settings["max_videos"]
+        keep_unwatched = settings["keep_unwatched"]
 
         browser = browser_setup(
             browser=browser_choice,
@@ -306,7 +317,9 @@ def main():
             chromium_driver=chromium_driver,
         )
 
-        playlist_cleanup(browser, playlist_link, close_browser=False)
+        playlist_cleanup(
+            browser, playlist_link, keep_unwatched=keep_unwatched, close_browser=False
+        )
         playlist_build(
             browser, subs_to_keep, playlist_name, max_videos, close_browser=True
         )
