@@ -54,7 +54,7 @@ subs:
   - Channel Three
 ```
 **Detailed settings explanation:**
-- **browser_choice:** Case insensitive. Firefox, Chrome, Edge, or Chromium
+- **browser_choice:** One of the following: Firefox, Chrome, Edge, or Chromium
 - **browser_profile:** Path to your browser profile. It is located in different locations depending on the 
    browser. For example, for Chromium it may be located at ```/home/your_name/.config/chromium/```, but FireFox it may be located at ```C:\Users\yourname\AppData\Roaming\Mozilla\Firefox\Profiles\RandomString.Profile Number```
 - **edge_profile_name:** Name of your Edge profile (i.e. Profile 1, Profile 2, etc). Required for Edge only
@@ -62,6 +62,7 @@ subs:
 - **playlist_link:** Full YouTube playlist URL
 - **playlist_name:** Must match exactly (case sensitive)
 - **max_videos:** Maximum amount of videos to add before ending script. Default = 10
+- **keep_unwatched:** Whether or not videos that haven't been watched get removed from the playlist. False = all videos removed. True = only watched videos removed
 - **subs:** List of channel names
 
 ### 3. **Account login setup**
@@ -100,9 +101,13 @@ browser = browser_setup(
 
 subs = ["Channel A", "Channel B"]
 
-playlist_cleanup(browser, "https://youtube.com/playlist?list=XXXX")
+playlist_cleanup(
+    browser=browser, 
+    playlist_link="https://youtube.com/playlist?list=XXXX", 
+    keep_unwatched=True
+  )
 playlist_build(
-    browser,
+    browser=browser,
     subs_to_keep=subs,
     playlist_name="My Playlist",
     max_videos=10,
