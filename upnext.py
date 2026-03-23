@@ -64,6 +64,7 @@ def browser_setup(
         profile_path (str): Path to the browser's user profile directory.
         edge_profile_name (str | None): Name of the Edge profile to use. Required only for Edge use.
         chromium_driver (str | None): Path to the Chromium driver executable. Required only for Chromium use.
+        headless (bool): False = browser window will visibly open when running, True = browser will not visibly open when running 
 
     Returns:
         WebDriver: Returns a WebDriver instance for the specified browser.
@@ -89,6 +90,7 @@ def browser_setup(
     elif browser.lower() == "edge":
         options = EdgeOptions()
         options.add_argument("--user-data-dir=" + profile_path)
+        options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_argument("--profile-directory=" + edge_profile_name)
         if headless:
             options.add_argument("--headless=new")
@@ -100,6 +102,8 @@ def browser_setup(
         options.add_experimental_option("useAutomationExtension", False)
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_argument("--user-data-dir=" + profile_path)
+        if headless:
+            options.add_argument("--headless")
         service = Service(chromium_driver)
         return webdriver.Chrome(service=service, options=options)
 

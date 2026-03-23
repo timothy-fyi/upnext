@@ -49,6 +49,7 @@ playlist_link: https://www.youtube.com/playlist?list=XXXX
 playlist_name: My Playlist
 max_videos: 10
 keep_unwatched: False
+headless: False
 subs:
   - Channel One
   - Channel Two
@@ -64,6 +65,7 @@ subs:
 - **playlist_name:** Must match exactly (case sensitive)
 - **max_videos:** Maximum amount of videos to add before ending script. Default = 10
 - **keep_unwatched:** Whether or not videos that haven't been watched get removed from the playlist. False = all videos removed. True = only watched videos removed
+- **headless:** Whether to run without visibly opening a browser window or not. False = browser window will open. False = browser window will not open
 - **subs:** List of channel names
 
 ### 3. **Account login setup**
@@ -97,7 +99,8 @@ from upnext.upnext import browser_setup, playlist_cleanup, playlist_build
 browser = browser_setup(
     browser="chromium",
     profile_path="/path/to/profile/",
-    chromium_driver="/path/to/chromedriver"
+    chromium_driver="/path/to/chromedriver",
+    headless=False
 )
 
 subs = ["Channel A", "Channel B"]

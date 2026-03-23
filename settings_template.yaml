@@ -1,11 +1,12 @@
 browser_choice: # One of the following: "firefox", "chrome", "edge", "chromium"
 browser_profile: # Path to your browser profile. Example: 'C:\Path\to\firefix\profiles\string.Profile 1
 edge_profile_name: # Name of your Edge profile if using Edge. Example: 'Profile 1'
-chromoium_driver: # Path to your chromedriver executable if using Chromium. Example: 'C:\Path\to\chromedriver\chromedriver.exe
+chromium_driver: # Path to your chromedriver executable if using Chromium. Example: 'C:\Path\to\chromedriver\chromedriver.exe
 playlist_link: # Playlist Link here (copy and paste from address bar)
 playlist_name: # Name of the playlist you want to add videos to. Case sensitive
 max_videos: 10 # Max number of videos to add to the playlist each time the script is run. Default: 10. Can leave blank to run until subscription scroll ends
 keep_unwatched: False # Whether or not videos that haven't been watched get removed from the playlist. False = all videos removed. True = only watched videos removed
+headless: False # Whether to run without visibly opening a browser window or not. False = browser window will open. False = browser window will not open
 subs:
   - # add
   - # as
